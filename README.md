@@ -16,6 +16,11 @@ pre-built binary of microservice.
 `Makefile` provides a basic command set to automate local and docker builds
 of microservice.
 
+With current docker build implementation it results into `11.1 MB` image
+size production, which includes `5.3 MB` pre-built go binary inside.
+
+**Is it possible to have less?**
+
 Author would be greatly appreciated for any suggestions and contributions
 of further optimizations and improvements to this example. 
 
