@@ -17,7 +17,7 @@
 ############### 1. BUILD STAGE ###############
 FROM golang:1.13-alpine AS build
 
-RUN apk add --no-cache git make bash
+RUN apk add --no-cache git make
 RUN mkdir -p /opt/app
 
 WORKDIR /opt/app
