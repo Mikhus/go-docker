@@ -16,8 +16,8 @@ pre-built binary of microservice.
 `Makefile` provides a basic command set to automate local and docker builds
 of microservice.
 
-Author would be greatly appreciated for any suggestions about further 
-optimizations and improvements contributions to this example. 
+Author would be greatly appreciated for any suggestions and contributions
+of further optimizations and improvements to this example. 
 
 ## License
 
