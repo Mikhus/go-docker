@@ -30,6 +30,24 @@ GUEST_PORT    := "9999"
 
 all: clean main
 
+main: clean
+	@echo "Building..."
+	@go build -ldflags="-s -w -X main.build=`git describe --tags`" \
+		-i -v -o $(BIN_OUT) $(BIN_IN)
+	@echo "Build success!"
+	@echo "Binary is here -> $(BIN_OUT)"
+
+clean:
+	@rm -rf $(BIN_OUT)
+	@rm -rf $(RELEASE_DIST)
+
+start:
+	@test ! -f $(BIN_OUT) && make --no-print-directory || exit 0
+	@echo "Starting..."
+	@./$(BIN_OUT)
+
+# Docker manipulations
+
 docker-build: clean
 	@docker build -f Dockerfile -t $(OUT_NAME) .
 	@make docker-clean
@@ -42,10 +60,6 @@ docker-run:
 	@docker run -dp $(HOST_PORT):$(GUEST_PORT) --rm -it \
 	--name $(OUT_NAME) $(OUT_NAME)
 
-docker-start:
-	@docker run -p $(HOST_PORT):$(GUEST_PORT) --rm -it \
-	--name $(OUT_NAME) $(OUT_NAME)
-
 docker-stop:
 	@docker stop `docker ps -q --filter ancestor=$(OUT_NAME)` || exit 0
 
@@ -55,37 +69,3 @@ docker-clean: docker-stop
 
 docker-ssh:
 	@docker exec -ti $(OUT_NAME) /bin/sh
-
-release: clean
-	@echo "Building $(VERSION)"
-	@goreleaser release
-
-main: clean-release
-	@echo "Building..."
-	@go build -ldflags="-s -w -X main.build=`git describe --tags`" \
-		-i -v -o $(BIN_OUT) $(BIN_IN)
-	@echo "Build success!"
-	@echo "Binary is here -> $(BIN_OUT)"
-
-test: clean-coverage
-	@echo "Running tests..."
-	@mkdir -p $(COVERAGE)
-	@go test -v -bench=. -coverprofile $(COVERAGE_OUT)
-
-cover:
-	@go tool cover -html=$(COVERAGE_OUT) -o $(COVERAGE_HTML)
-	@xdg-open $(COVERAGE_HTML) && sleep 1 && exit 0
-
-clean-release:
-	@rm -rf $(BIN_OUT)
-	@rm -rf $(RELEASE_DIST)
-
-clean-coverage:
-	@rm -rf $(COVERAGE)
-
-clean: clean-release clean-coverage
-
-start:
-	@test ! -f $(BIN_OUT) && make --no-print-directory || exit 0
-	@echo "Starting..."
-	@./$(BIN_OUT)
