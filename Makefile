@@ -14,14 +14,9 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 OUT_NAME      := "microservice"
-RELEASE       := "."
-RELEASE_DIST  := "./dist"
 PKG_ROOT      := "."
-BIN_OUT       := "$(RELEASE)/$(OUT_NAME)"
+BIN_OUT       := "$(PKG_ROOT)/$(OUT_NAME)"
 BIN_IN        := "$(PKG_ROOT)/main.go"
-COVERAGE      := "coverage"
-COVERAGE_OUT  := "$(COVERAGE)/cover.out"
-COVERAGE_HTML := "$(COVERAGE)/cover.html"
 VERSION       := `git describe --tags`
 HOST_PORT     := "9999"
 GUEST_PORT    := "9999"
@@ -39,7 +34,6 @@ main: clean
 
 clean:
 	@rm -rf $(BIN_OUT)
-	@rm -rf $(RELEASE_DIST)
 
 start:
 	@test ! -f $(BIN_OUT) && make --no-print-directory || exit 0
