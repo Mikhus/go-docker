@@ -1,6 +1,6 @@
 # ISC License
 #
-# Copyright (c) 2019-present, Mykhailo Stadnyk <mikhus@gmail.com>
+# Copyright (c) 2019-present, Mykhailo Stadnyk <mikhusgmail.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -13,53 +13,56 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-APP_NAME      := "microservice"
-BIN_OUT       := "./$(APP_NAME)"
-BIN_IN        := "./main.go"
-VERSION       := `git describe --tags`
-HOST_PORT     := "9999"
-GUEST_PORT    := "9999"
+APP_NAME   := "microservice"
+BIN_OUT    := "./$(APP_NAME)"
+BIN_IN     := "./main.go"
+VERSION    := `git describe --tags`
+HOST_PORT  := "9999"
+GUEST_PORT := "9999"
 
-.PHONY: all
+.PHONY: all main clean start
+.SILENT: clean start docker-stop docker-clean
 
 all: clean main
 
 main: clean
 	@echo "Building..."
-	@go build -ldflags="-s -w -X main.build=$(VERSION)" \
+	go build -ldflags="-s -w -X main.build=$(VERSION)" \
 		-i -v -o $(BIN_OUT) $(BIN_IN)
 	@echo "Build success!"
 	@echo "Binary is here -> $(BIN_OUT)"
 
 clean:
-	@rm -rf $(BIN_OUT)
+	rm -rf $(BIN_OUT)
 
 start:
-	@test ! -f $(BIN_OUT) && make --no-print-directory || exit 0
-	@echo "Starting..."
-	@./$(BIN_OUT)
+	test ! -f $(BIN_OUT) && make --no-print-directory || exit 0
+	echo "Starting..."
+	./$(BIN_OUT)
 
 # Docker manipulations
 
 docker-build: clean
-	@docker build --build-arg APP_NAME="$(APP_NAME)" \
+	docker build --build-arg APP_NAME="$(APP_NAME)" \
 		-f Dockerfile -t $(APP_NAME) .
-	@make docker-clean
+	make docker-clean
 	@echo "Build success! Docker image produced:"
-	@docker images | grep $(APP_NAME)
+	docker images | grep $(APP_NAME)
 	@echo "Use 'make docker-run' to start the container"
 	@echo "Use 'make docker-stop' to stop the container"
 
 docker-run:
-	@docker run -dp $(HOST_PORT):$(GUEST_PORT) --rm -it \
+	docker run -dp $(HOST_PORT):$(GUEST_PORT) --rm -it \
 		--name $(APP_NAME) $(APP_NAME)
 
 docker-stop:
-	@docker stop `docker ps -q --filter ancestor=$(APP_NAME)` || exit 0
+	echo "Stopping running container, if any..."
+	docker stop `docker ps -q --filter ancestor=$(APP_NAME)` 2>/dev/null ||:
 
 docker-clean: docker-stop
-	@echo "Clean all untagged/dangling (<none>) images"
-	-docker rmi `docker images -q -f dangling=true` || exit 0
+	echo "Clean all untagged/dangling (<none>) images"
+	docker rmi `docker images -q -f dangling=true` 2>/dev/null ||:
+	echo "Done!"
 
 docker-ssh:
-	@docker exec -ti $(APP_NAME) /bin/sh
+	docker exec -ti $(APP_NAME) /bin/sh
