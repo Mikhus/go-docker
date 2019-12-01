@@ -43,7 +43,8 @@ start:
 # Docker manipulations
 
 docker-build: clean
-	@docker build -f Dockerfile -t $(OUT_NAME) .
+	@docker build --build-arg APP_NAME="$(OUT_NAME)" \
+		--f Dockerfile -t $(OUT_NAME) .
 	@make docker-clean
 	@echo "Build success! Docker image produced:"
 	@docker images | grep $(OUT_NAME)
@@ -52,7 +53,7 @@ docker-build: clean
 
 docker-run:
 	@docker run -dp $(HOST_PORT):$(GUEST_PORT) --rm -it \
-	--name $(OUT_NAME) $(OUT_NAME)
+		--name $(OUT_NAME) $(OUT_NAME)
 
 docker-stop:
 	@docker stop `docker ps -q --filter ancestor=$(OUT_NAME)` || exit 0

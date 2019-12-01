@@ -17,6 +17,8 @@
 ############### 1. BUILD STAGE ###############
 FROM golang:1.13-alpine AS build
 
+ARG APP_NAME
+
 RUN apk add --no-cache git make
 RUN mkdir -p /opt/app
 
@@ -28,8 +30,8 @@ RUN make
 ############### 2. RELEASE STAGE ###############
 FROM alpine:latest AS release
 
-COPY --from=build /opt/app/microservice /bin
+COPY --from=build /opt/app/${APP_NAME} /bin
 
 EXPOSE 9999
 
-CMD [ "microservice" ]
+CMD [ "${APP_NAME}" ]
