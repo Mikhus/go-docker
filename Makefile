@@ -13,10 +13,9 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-OUT_NAME      := "microservice"
-PKG_ROOT      := "."
-BIN_OUT       := "$(PKG_ROOT)/$(OUT_NAME)"
-BIN_IN        := "$(PKG_ROOT)/main.go"
+APP_NAME      := "microservice"
+BIN_OUT       := "./$(APP_NAME)"
+BIN_IN        := "./main.go"
 VERSION       := `git describe --tags`
 HOST_PORT     := "9999"
 GUEST_PORT    := "9999"
@@ -43,24 +42,24 @@ start:
 # Docker manipulations
 
 docker-build: clean
-	@docker build --build-arg APP_NAME="$(OUT_NAME)" \
-		-f Dockerfile -t $(OUT_NAME) .
+	@docker build --build-arg APP_NAME="$(APP_NAME)" \
+		-f Dockerfile -t $(APP_NAME) .
 	@make docker-clean
 	@echo "Build success! Docker image produced:"
-	@docker images | grep $(OUT_NAME)
+	@docker images | grep $(APP_NAME)
 	@echo "Use 'make docker-run' to start the container"
 	@echo "Use 'make docker-stop' to stop the container"
 
 docker-run:
 	@docker run -dp $(HOST_PORT):$(GUEST_PORT) --rm -it \
-		--name $(OUT_NAME) $(OUT_NAME)
+		--name $(APP_NAME) $(APP_NAME)
 
 docker-stop:
-	@docker stop `docker ps -q --filter ancestor=$(OUT_NAME)` || exit 0
+	@docker stop `docker ps -q --filter ancestor=$(APP_NAME)` || exit 0
 
 docker-clean: docker-stop
 	@echo "Clean all untagged/dangling (<none>) images"
 	-docker rmi `docker images -q -f dangling=true` || exit 0
 
 docker-ssh:
-	@docker exec -ti $(OUT_NAME) /bin/sh
+	@docker exec -ti $(APP_NAME) /bin/sh
