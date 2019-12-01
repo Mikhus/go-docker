@@ -44,7 +44,7 @@ start:
 
 docker-build: clean
 	@docker build --build-arg APP_NAME="$(OUT_NAME)" \
-		--f Dockerfile -t $(OUT_NAME) .
+		-f Dockerfile -t $(OUT_NAME) .
 	@make docker-clean
 	@echo "Build success! Docker image produced:"
 	@docker images | grep $(OUT_NAME)

@@ -17,8 +17,6 @@
 ############### 1. BUILD STAGE ###############
 FROM golang:1.13-alpine AS build
 
-ARG APP_NAME
-
 RUN apk add --no-cache git make
 RUN mkdir -p /opt/app
 
@@ -30,8 +28,9 @@ RUN make
 ############### 2. RELEASE STAGE ###############
 FROM alpine:latest AS release
 
+ARG APP_NAME
+ENV APP_NAME $APP_NAME
+
 COPY --from=build /opt/app/${APP_NAME} /bin
 
-EXPOSE 9999
-
-CMD [ "${APP_NAME}" ]
+CMD $APP_NAME
