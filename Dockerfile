@@ -28,8 +28,9 @@ RUN make
 ############### 2. RELEASE STAGE ###############
 FROM alpine:latest AS release
 
-COPY --from=build /opt/app/microservice /bin
+ARG APP_NAME
+ENV APP_NAME $APP_NAME
 
-EXPOSE 9999
+COPY --from=build /opt/app/${APP_NAME} /bin
 
-CMD [ "microservice" ]
+CMD $APP_NAME
