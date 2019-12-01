@@ -26,7 +26,7 @@ all: clean main
 
 main: clean
 	@echo "Building..."
-	@go build -ldflags="-s -w -X main.build=`git describe --tags`" \
+	@go build -ldflags="-s -w -X main.build=$(VERSION)" \
 		-i -v -o $(BIN_OUT) $(BIN_IN)
 	@echo "Build success!"
 	@echo "Binary is here -> $(BIN_OUT)"
