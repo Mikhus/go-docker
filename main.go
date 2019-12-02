@@ -24,7 +24,10 @@ import (
 	"os"
 )
 
-var build string
+var (
+	build string
+	port string
+)
 
 func main() {
 	var version bool
@@ -37,15 +40,13 @@ func main() {
 		os.Exit(0)
 	}
 
-	addr := ":9999"
+	addr := ":" + port
 
 	fmt.Printf("Starting HTTP server at %s\n", addr)
 
 	http.HandleFunc("/", HelloServer)
 
-	err := http.ListenAndServe(addr, nil)
-
-	if err != nil {
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		fmt.Printf("Error starting HTTP server: %v", err)
 	}
 }

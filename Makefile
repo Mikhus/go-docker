@@ -13,12 +13,12 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-APP_NAME   := "microservice"
+APP_NAME   := "go-docker"
 BIN_OUT    := "./$(APP_NAME)"
 BIN_IN     := "./main.go"
 VERSION    := `git describe --tags`
-HOST_PORT  := "9999"
-GUEST_PORT := "9999"
+HOST_PORT  := 9999
+GUEST_PORT := 9999
 
 .PHONY: all main clean start
 .SILENT: clean start docker-stop docker-clean
@@ -27,7 +27,8 @@ all: clean main
 
 main: clean
 	@echo "Building..."
-	go build -ldflags="-s -w -X main.build=$(VERSION)" \
+	go build \
+		-ldflags="-s -w -X main.build=$(VERSION) -X main.port=$(GUEST_PORT)" \
 		-i -v -o $(BIN_OUT) $(BIN_IN)
 	@echo "Build success!"
 	@echo "Binary is here -> $(BIN_OUT)"
