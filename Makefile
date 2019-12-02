@@ -46,11 +46,8 @@ start:
 docker-build: clean
 	docker build --build-arg APP_NAME="$(APP_NAME)" \
 		-f Dockerfile -t $(APP_NAME) .
-	make docker-clean
 	@echo "Build success! Docker image produced:"
 	docker images | grep $(APP_NAME)
-	@echo "Use 'make docker-run' to start the container"
-	@echo "Use 'make docker-stop' to stop the container"
 
 docker-run:
 	docker run -dp $(HOST_PORT):$(GUEST_PORT) --rm -it \
@@ -62,8 +59,7 @@ docker-stop:
 
 docker-clean: docker-stop
 	echo "Clean all untagged/dangling (<none>) images"
-	docker rmi `docker images -q -f dangling=true` 2>/dev/null ||:
-	echo "Done!"
+	docker rmi `docker images -q -f dangling=true`
 
 docker-ssh:
 	docker exec -ti $(APP_NAME) /bin/sh
