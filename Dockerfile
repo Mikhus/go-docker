@@ -17,6 +17,20 @@
 ############### 1. BUILD STAGE ###############
 FROM golang:1.13-alpine AS build
 
+ENV USER=docker
+ENV UID=1111
+ENV GID=1111
+
+RUN addgroup --gid "$GID" "$USER" \
+    && adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "$(pwd)" \
+    --ingroup "$USER" \
+    --no-create-home \
+    --uid "$UID" \
+    "$USER"
+
 RUN apk update && apk add --no-cache git make wget
 RUN mkdir -p /opt/app
 
@@ -31,6 +45,10 @@ RUN make
 
 ############### 2. RELEASE STAGE ###############
 FROM scratch AS release
+
+COPY --from=build /etc/passwd /etc/passwd
+
+USER docker
 
 WORKDIR /app
 COPY --from=build /opt/app/go-docker .
