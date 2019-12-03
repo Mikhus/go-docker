@@ -8,10 +8,10 @@ So the most interesting part is to observe:
  - [Dockerfile](https://github.com/Mikhus/go-docker/blob/master/Dockerfile)
  - [Makefile](https://github.com/Mikhus/go-docker/blob/master/Makefile)
 
-`Dockerfile` represents 2-stage building process. First phase is to run
-go build under a target platform, which is based on Alpine Linux. Second
-phase creates a release image containing only minimalist Alpine image and
-pre-built binary of microservice.
+`Dockerfile` represents 2-stage building process. First stage implements
+minimalistic go executable build and second one, which is release stage
+creates minimalistic zero-size container to run under docker with a single
+pre-built executable inside.
 
 `Makefile` provides a basic command set to automate local and docker builds
 of microservice.
