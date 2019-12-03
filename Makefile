@@ -32,7 +32,7 @@ main: clean
 		-ldflags="-s -w -X main.build=$(VERSION) -X main.port=$(GUEST_PORT)" \
 		-a -installsuffix cgo \
 		-i -v -o $(BIN_OUT_TMP) $(BIN_IN)
-	upx -f --brute -o $(BIN_OUT) $(BIN_OUT_TMP)
+	upx -f --ultra-brute --strip-relocs=0 -o $(BIN_OUT) $(BIN_OUT_TMP)
 	@echo "Build success!"
 	@echo "Binary is here -> $(BIN_OUT)"
 
