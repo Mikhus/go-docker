@@ -17,8 +17,12 @@
 ############### 1. BUILD STAGE ###############
 FROM golang:1.13-alpine AS build
 
-RUN apk update && apk add --no-cache git make
+RUN apk update && apk add --no-cache git make wget
 RUN mkdir -p /opt/app
+
+RUN wget -q -O /bin/upx \
+    https://github.com/lalyos/docker-upx/releases/download/v3.91/upx
+RUN chmod +x /bin/upx
 
 WORKDIR /opt/app
 
@@ -26,11 +30,9 @@ COPY ./* ./
 RUN make
 
 ############### 2. RELEASE STAGE ###############
-FROM alpine:latest AS release
+FROM scratch AS release
 
-ARG APP_NAME
-ENV APP_NAME $APP_NAME
+WORKDIR /app
+COPY --from=build /opt/app/go-docker .
 
-COPY --from=build /opt/app/${APP_NAME} /bin
-
-CMD $APP_NAME
+CMD [ "./go-docker" ]

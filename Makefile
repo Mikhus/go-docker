@@ -13,12 +13,13 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-APP_NAME   := "go-docker"
-BIN_OUT    := "./$(APP_NAME)"
-BIN_IN     := "./main.go"
-VERSION    := `git describe --tags`
-HOST_PORT  := 9999
-GUEST_PORT := 9999
+APP_NAME    := go-docker
+BIN_OUT_TMP := ./$(APP_NAME).bin
+BIN_OUT     := ./$(APP_NAME)
+BIN_IN      := ./main.go
+VERSION     := `git describe --tags`
+HOST_PORT   := 9999
+GUEST_PORT  := 9999
 
 .PHONY: all main clean start
 .SILENT: clean start docker-stop docker-clean
@@ -27,9 +28,11 @@ all: clean main
 
 main: clean
 	@echo "Building..."
-	go build \
+	CGO_ENABLED=0 GOOS=linux go build \
 		-ldflags="-s -w -X main.build=$(VERSION) -X main.port=$(GUEST_PORT)" \
-		-i -v -o $(BIN_OUT) $(BIN_IN)
+		-a -installsuffix cgo \
+		-i -v -o $(BIN_OUT_TMP) $(BIN_IN)
+	upx -f --brute -o $(BIN_OUT) $(BIN_OUT_TMP)
 	@echo "Build success!"
 	@echo "Binary is here -> $(BIN_OUT)"
 
@@ -44,8 +47,7 @@ start:
 # Docker manipulations
 
 docker-build: clean
-	docker build --build-arg APP_NAME="$(APP_NAME)" \
-		-f Dockerfile -t $(APP_NAME) .
+	docker build -f Dockerfile -t $(APP_NAME) .
 	@echo "Build success! Docker image produced:"
 	docker images | grep $(APP_NAME)
 
