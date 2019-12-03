@@ -14,7 +14,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 APP_NAME    := go-docker
-BIN_OUT_TMP := ./$(APP_NAME).bin
 BIN_OUT     := ./$(APP_NAME)
 BIN_IN      := ./main.go
 VERSION     := `git describe --tags`
@@ -31,8 +30,7 @@ main: clean
 	CGO_ENABLED=0 GOOS=linux go build \
 		-ldflags="-s -w -X main.build=$(VERSION) -X main.port=$(GUEST_PORT)" \
 		-a -installsuffix cgo \
-		-i -v -o $(BIN_OUT_TMP) $(BIN_IN)
-	upx -f --ultra-brute --strip-relocs=0 -o $(BIN_OUT) $(BIN_OUT_TMP)
+		-i -v -o $(BIN_OUT) $(BIN_IN)
 	@echo "Build success!"
 	@echo "Binary is here -> $(BIN_OUT)"
 
@@ -47,7 +45,10 @@ start:
 # Docker manipulations
 
 docker-build: clean
-	docker build -f Dockerfile -t $(APP_NAME) .
+	docker build \
+		--build-arg APP_NAME=$(APP_NAME) \
+		-f Dockerfile \
+		-t $(APP_NAME) .
 	@echo "Build success! Docker image produced:"
 	docker images | grep $(APP_NAME)
 

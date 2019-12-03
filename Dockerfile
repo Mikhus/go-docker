@@ -17,6 +17,8 @@
 ############### 1. BUILD STAGE ###############
 FROM golang:1.13-alpine AS build
 
+ARG APP_NAME
+ENV APP_NAME $APP_NAME
 ENV USER=docker
 ENV UID=1111
 ENV GID=1111
@@ -41,7 +43,9 @@ RUN chmod +x /bin/upx
 WORKDIR /opt/app
 
 COPY ./* ./
-RUN make
+RUN make \
+    && mv $APP_NAME ${APP_NAME}.bin \
+    && upx -f --ultra-brute --strip-relocs=0 -o $APP_NAME ${APP_NAME}.bin
 
 ############### 2. RELEASE STAGE ###############
 FROM scratch AS release
