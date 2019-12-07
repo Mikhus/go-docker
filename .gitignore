@@ -12,6 +12,6 @@
 *.out
 
 .idea/
-microservice
+go-docker
 coverage/
 dist/
